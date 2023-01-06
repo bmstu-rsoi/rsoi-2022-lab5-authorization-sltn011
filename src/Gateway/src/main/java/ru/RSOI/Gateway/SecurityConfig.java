@@ -2,6 +2,7 @@ package ru.RSOI.Gateway;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
@@ -34,8 +35,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .mvcMatchers("api/v1/authorize").permitAll()
-                .mvcMatchers("api/v1/callback").permitAll()
+                .mvcMatchers(HttpMethod.GET, "/api/v1/**").permitAll()
+                .mvcMatchers(HttpMethod.POST, "/api/v1/**").permitAll()
+                .mvcMatchers(HttpMethod.DELETE, "/api/v1/**").permitAll()
                 .and().oauth2ResourceServer().jwt();
         return http.build();
     }

@@ -14,6 +14,7 @@ public class ExceptionAdvice {
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseBody
     public ResponseEntity<String> handleControllerException(AccessDeniedException ex) {
+        System.out.println("Advice");
         return new ResponseEntity<>(ex.getMessage(), UNAUTHORIZED);
     }
 

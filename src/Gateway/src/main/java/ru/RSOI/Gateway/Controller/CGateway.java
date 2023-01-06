@@ -777,14 +777,14 @@ public class CGateway {
     {
         String url = UriComponentsBuilder.fromHttpUrl("https://dev-dpvduigq7zb3kgk5.us.auth0.com/userinfo")
                 .toUriString();
-        
-        String token = access_token.substring(7);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
         headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+        headers.set(HttpHeaders.AUTHORIZATION, access_token);
         HttpHeaders body = new HttpHeaders();
-        body.set("access_token", token);
+        body.set("access_token", access_token.substring(7));
+        body.set("aud", "[\"https://dumbass-lab.com/api/v1\", \"https://dev-dpvduigq7zb3kgk5.us.auth0.com/userinfo\"]");
         HttpEntity<?> entity = new HttpEntity<>(body, headers);
 
         RestOperations restOperations = new RestTemplate();
