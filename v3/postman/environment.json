@@ -9,7 +9,7 @@
     },
     {
       "key": "identityProviderUrl",
-      "value": "https://dev-dpvduigq7zb3kgk5.us.auth0.com/oauth/token",
+      "value": "https://dev-dpvduigq7zb3kgk5.us.auth0.com",
       "enabled": true
     },
     {
