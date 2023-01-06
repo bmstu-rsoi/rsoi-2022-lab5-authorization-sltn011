@@ -42,11 +42,11 @@ public class CGateway {
     }
 
     @GetMapping("/cars")
-    public MCarsPage getAvailableCars(@RequestHeader(value = "authorization", required = false) String auth_token,
+    public MCarsPage getAvailableCars(@RequestHeader(value = "authorization", required = false) String access_token,
                                       @RequestParam int page, @RequestParam int size,
                                       @RequestParam(defaultValue = "false") boolean showAll)
     {
-        if (!IsValidToken(auth_token))
+        if (!IsValidToken(access_token))
         {
             throw new EUnauthorized("Not authorized!");
         }
@@ -114,25 +114,25 @@ public class CGateway {
     }
 
     @GetMapping("/rental")
-    public List<MRentInfo> getAllUserRents(@RequestHeader(value = "authorization", required = false) String auth_token)
+    public List<MRentInfo> getAllUserRents(@RequestHeader(value = "authorization", required = false) String access_token)
     {
-        if (!IsValidToken(auth_token))
+        if (!IsValidToken(access_token))
         {
             throw new EUnauthorized("Not authorized!");
         }
-        String username = getUsername(auth_token);
+        String username = getUsername(access_token);
         return getAllUserRentsList(username);
     }
 
     @PostMapping("/rental")
-    public MRentSuccess tryRenting(@RequestHeader(value = "authorization", required = false) String auth_token,
+    public MRentSuccess tryRenting(@RequestHeader(value = "authorization", required = false) String access_token,
                                    @RequestBody Map<String, String> values)
     {
-        if (!IsValidToken(auth_token))
+        if (!IsValidToken(access_token))
         {
             throw new EUnauthorized("Not authorized!");
         }
-        String username = getUsername(auth_token);
+        String username = getUsername(access_token);
 
         if (!values.containsKey("carUid") || !values.containsKey("dateFrom") || !values.containsKey("dateTo"))
         {
@@ -157,27 +157,27 @@ public class CGateway {
     }
 
     @GetMapping("/rental/{rentalUid}")
-    public MRentInfo getUserRent(@RequestHeader(value = "authorization", required = false) String auth_token,
+    public MRentInfo getUserRent(@RequestHeader(value = "authorization", required = false) String access_token,
                                  @PathVariable String rentalUid)
     {
-        if (!IsValidToken(auth_token))
+        if (!IsValidToken(access_token))
         {
             throw new EUnauthorized("Not authorized!");
         }
-        String username = getUsername(auth_token);
+        String username = getUsername(access_token);
         return getUserRentByUid(username, rentalUid);
     }
 
     @DeleteMapping("/rental/{rentalUid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void cancelUserRent(@RequestHeader(value = "authorization", required = false) String auth_token,
+    public void cancelUserRent(@RequestHeader(value = "authorization", required = false) String access_token,
                                @PathVariable String rentalUid)
     {
-        if (!IsValidToken(auth_token))
+        if (!IsValidToken(access_token))
         {
             throw new EUnauthorized("Not authorized!");
         }
-        String username = getUsername(auth_token);
+        String username = getUsername(access_token);
 
         MRentInfo rentInfo = getUserRentByUid(username, rentalUid);
         if (rentInfo.status.equals("IN_PROGRESS"))
@@ -190,14 +190,14 @@ public class CGateway {
 
     @PostMapping("/rental/{rentalUid}/finish")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void finishUserRent(@RequestHeader(value = "authorization", required = false) String auth_token,
+    public void finishUserRent(@RequestHeader(value = "authorization", required = false) String access_token,
                                @PathVariable String rentalUid)
     {
-        if (!IsValidToken(auth_token))
+        if (!IsValidToken(access_token))
         {
             throw new EUnauthorized("Not authorized!");
         }
-        String username = getUsername(auth_token);
+        String username = getUsername(access_token);
         MRentInfo rentInfo = getUserRentByUid(username, rentalUid);
         if (rentInfo.status.equals("IN_PROGRESS"))
         {
@@ -762,16 +762,18 @@ public class CGateway {
         }
     }
 
-    String getUsername(String auth_token)
+    String getUsername(String access_token)
     {
         String url = UriComponentsBuilder.fromHttpUrl("https://dev-dpvduigq7zb3kgk5.us.auth0.com/userinfo")
                 .toUriString();
+        
+        String token = access_token.substring(7);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
         headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
         HttpHeaders body = new HttpHeaders();
-        body.set("access_token", auth_token);
+        body.set("access_token", token);
         HttpEntity<?> entity = new HttpEntity<>(body, headers);
 
         RestOperations restOperations = new RestTemplate();
@@ -810,14 +812,12 @@ public class CGateway {
 
     boolean IsValidToken(String access_token)
     {
-        System.out.println("AccessToken in check: " + access_token);
         if (access_token == null)
         {
             return false;
         }
         try {
             String token = access_token.substring(7);
-            System.out.println("Token in check: " + token);
             DecodedJWT jwt = JWT.decode(token);
             JwkProvider provider = new UrlJwkProvider("https://dev-dpvduigq7zb3kgk5.us.auth0.com");
             Jwk jwk = provider.get(jwt.getKeyId());
