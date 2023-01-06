@@ -827,6 +827,7 @@ public class CGateway {
         }
         catch (Exception e)
         {
+            System.out.println(e);
             return false;
         }
         return true;
