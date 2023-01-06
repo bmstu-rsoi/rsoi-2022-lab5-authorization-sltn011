@@ -35,10 +35,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .mvcMatchers(HttpMethod.GET, "/api/v1/**").permitAll()
-                .mvcMatchers(HttpMethod.POST, "/api/v1/**").permitAll()
-                .mvcMatchers(HttpMethod.DELETE, "/api/v1/**").permitAll()
+                .mvcMatchers("/api/v1/authorize").permitAll()
+                .mvcMatchers("/api/v1/callback").permitAll()
+                .and().cors()
                 .and().oauth2ResourceServer().jwt();
+        http.csrf().disable();
         return http.build();
     }
 }
