@@ -46,7 +46,7 @@ public class CGateway {
                                       @RequestParam int page, @RequestParam int size,
                                       @RequestParam(defaultValue = "false") boolean showAll)
     {
-        System.out.println("Get all cars");
+        System.out.println("Get all cars " + new Boolean(access_token != null).toString());
         if (!IsValidToken(access_token))
         {
             throw new EUnauthorized("Not authorized!");
@@ -117,12 +117,13 @@ public class CGateway {
     @GetMapping("/rental")
     public List<MRentInfo> getAllUserRents(@RequestHeader(value = "Authorization", required = false) String access_token)
     {
-        System.out.println("Get all user rents");
+        System.out.println("Get all user rents " + new Boolean(access_token != null).toString());
         if (!IsValidToken(access_token))
         {
             throw new EUnauthorized("Not authorized!");
         }
         String username = getUsername(access_token);
+        System.out.println(username);
         return getAllUserRentsList(username);
     }
 
@@ -130,12 +131,13 @@ public class CGateway {
     public MRentSuccess tryRenting(@RequestHeader(value = "Authorization", required = false) String access_token,
                                    @RequestBody Map<String, String> values)
     {
-        System.out.println("Try renting");
+        System.out.println("Try renting "  + new Boolean(access_token != null).toString());
         if (!IsValidToken(access_token))
         {
             throw new EUnauthorized("Not authorized!");
         }
         String username = getUsername(access_token);
+        System.out.println(username);
 
         if (!values.containsKey("carUid") || !values.containsKey("dateFrom") || !values.containsKey("dateTo"))
         {
@@ -163,7 +165,7 @@ public class CGateway {
     public MRentInfo getUserRent(@RequestHeader(value = "Authorization", required = false) String access_token,
                                  @PathVariable String rentalUid)
     {
-        System.out.println("Get user rent");
+        System.out.println("Get user rent "  + new Boolean(access_token != null).toString());
         if (!IsValidToken(access_token))
         {
             throw new EUnauthorized("Not authorized!");
@@ -178,12 +180,13 @@ public class CGateway {
     public void cancelUserRent(@RequestHeader(value = "Authorization", required = false) String access_token,
                                @PathVariable String rentalUid)
     {
-        System.out.println("Delete rent");
+        System.out.println("Delete rent "  + new Boolean(access_token != null).toString());
         if (!IsValidToken(access_token))
         {
             throw new EUnauthorized("Not authorized!");
         }
         String username = getUsername(access_token);
+        System.out.println(username);
 
         MRentInfo rentInfo = getUserRentByUid(username, rentalUid);
         if (rentInfo.status.equals("IN_PROGRESS"))
@@ -199,12 +202,13 @@ public class CGateway {
     public void finishUserRent(@RequestHeader(value = "Authorization", required = false) String access_token,
                                @PathVariable String rentalUid)
     {
-        System.out.println("Finish rent");
+        System.out.println("Finish rent "  + new Boolean(access_token != null).toString());
         if (!IsValidToken(access_token))
         {
             throw new EUnauthorized("Not authorized!");
         }
         String username = getUsername(access_token);
+        System.out.println(username);
         MRentInfo rentInfo = getUserRentByUid(username, rentalUid);
         if (rentInfo.status.equals("IN_PROGRESS"))
         {
