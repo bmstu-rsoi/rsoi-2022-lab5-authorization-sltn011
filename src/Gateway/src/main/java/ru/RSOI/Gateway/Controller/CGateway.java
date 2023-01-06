@@ -810,12 +810,14 @@ public class CGateway {
 
     boolean IsValidToken(String access_token)
     {
-        System.out.println("Token in check: " + access_token);
+        System.out.println("AccessToken in check: " + access_token);
         if (access_token == null)
         {
             return false;
         }
         try {
+            String token = access_token.substring(7);
+            System.out.println("Token in check: " + token);
             DecodedJWT jwt = JWT.decode(access_token);
             JwkProvider provider = new UrlJwkProvider("https://dev-dpvduigq7zb3kgk5.us.auth0.com");
             Jwk jwk = provider.get(jwt.getKeyId());
