@@ -170,6 +170,7 @@ public class CGateway {
 
     @DeleteMapping("/rental/{rentalUid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
     public void cancelUserRent(@RequestHeader(value = "authorization", required = false) String access_token,
                                @PathVariable String rentalUid)
     {
