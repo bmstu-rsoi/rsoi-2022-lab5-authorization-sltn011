@@ -1,5 +1,12 @@
 package ru.RSOI.Gateway.Controller;
 
+import com.auth0.jwk.Jwk;
+import com.auth0.jwk.JwkProvider;
+import com.auth0.jwk.UrlJwkProvider;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.*;
@@ -9,8 +16,11 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.RSOI.Gateway.Error.EBadRequestError;
 import ru.RSOI.Gateway.Error.ENotFoundError;
+import ru.RSOI.Gateway.Error.EUnauthorized;
 import ru.RSOI.Gateway.Model.*;
 
+import java.net.http.HttpResponse;
+import java.security.interfaces.RSAPublicKey;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.Duration;
@@ -25,16 +35,22 @@ public class CGateway {
     public static final String RentService    = "http://10.96.185.123:8060/api/v1/sys/rental";
     public static final String PaymentService = "http://10.96.215.106:8050/api/v1/sys/payment";
 
-    @GetMapping("/hello")
-    public String healthcheck()
+    @GetMapping("/callback")
+    public String callback()
     {
-        return "Hello from gateway!";
+        return "Hello";
     }
 
     @GetMapping("/cars")
-    public MCarsPage getAvailableCars(@RequestParam int page, @RequestParam int size,
+    public MCarsPage getAvailableCars(@RequestHeader(value = "authorization", required = false) String auth_token,
+                                      @RequestParam int page, @RequestParam int size,
                                       @RequestParam(defaultValue = "false") boolean showAll)
     {
+        if (!IsValidToken(auth_token))
+        {
+            throw new EUnauthorized("Not authorized!");
+        }
+
         String url = UriComponentsBuilder.fromHttpUrl(CarsService)
                 .queryParam("page", page)
                 .queryParam("size", size)
@@ -98,15 +114,26 @@ public class CGateway {
     }
 
     @GetMapping("/rental")
-    public List<MRentInfo> getAllUserRents(@RequestHeader(value = "X-User-Name") String username)
+    public List<MRentInfo> getAllUserRents(@RequestHeader(value = "authorization", required = false) String auth_token)
     {
+        if (!IsValidToken(auth_token))
+        {
+            throw new EUnauthorized("Not authorized!");
+        }
+        String username = getUsername(auth_token);
         return getAllUserRentsList(username);
     }
 
     @PostMapping("/rental")
-    public MRentSuccess tryRenting(@RequestHeader(value = "X-User-Name") String username,
+    public MRentSuccess tryRenting(@RequestHeader(value = "authorization", required = false) String auth_token,
                                    @RequestBody Map<String, String> values)
     {
+        if (!IsValidToken(auth_token))
+        {
+            throw new EUnauthorized("Not authorized!");
+        }
+        String username = getUsername(auth_token);
+
         if (!values.containsKey("carUid") || !values.containsKey("dateFrom") || !values.containsKey("dateTo"))
         {
             throw new EBadRequestError("Not all variables in request!", new ArrayList<>());
@@ -130,15 +157,28 @@ public class CGateway {
     }
 
     @GetMapping("/rental/{rentalUid}")
-    public MRentInfo getUserRent(@PathVariable String rentalUid, @RequestHeader(value = "X-User-Name") String username)
+    public MRentInfo getUserRent(@RequestHeader(value = "authorization", required = false) String auth_token,
+                                 @PathVariable String rentalUid)
     {
+        if (!IsValidToken(auth_token))
+        {
+            throw new EUnauthorized("Not authorized!");
+        }
+        String username = getUsername(auth_token);
         return getUserRentByUid(username, rentalUid);
     }
 
     @DeleteMapping("/rental/{rentalUid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void cancelUserRent(@PathVariable String rentalUid, @RequestHeader(value = "X-User-Name") String username)
+    public void cancelUserRent(@RequestHeader(value = "authorization", required = false) String auth_token,
+                               @PathVariable String rentalUid)
     {
+        if (!IsValidToken(auth_token))
+        {
+            throw new EUnauthorized("Not authorized!");
+        }
+        String username = getUsername(auth_token);
+
         MRentInfo rentInfo = getUserRentByUid(username, rentalUid);
         if (rentInfo.status.equals("IN_PROGRESS"))
         {
@@ -150,8 +190,14 @@ public class CGateway {
 
     @PostMapping("/rental/{rentalUid}/finish")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void finishUserRent(@PathVariable String rentalUid, @RequestHeader(value = "X-User-Name") String username)
+    public void finishUserRent(@RequestHeader(value = "authorization", required = false) String auth_token,
+                               @PathVariable String rentalUid)
     {
+        if (!IsValidToken(auth_token))
+        {
+            throw new EUnauthorized("Not authorized!");
+        }
+        String username = getUsername(auth_token);
         MRentInfo rentInfo = getUserRentByUid(username, rentalUid);
         if (rentInfo.status.equals("IN_PROGRESS"))
         {
@@ -714,5 +760,71 @@ public class CGateway {
         {
             throw new EBadRequestError(response.getBody(), new ArrayList<>());
         }
+    }
+
+    String getUsername(String auth_token)
+    {
+        String url = UriComponentsBuilder.fromHttpUrl("https://dev-dpvduigq7zb3kgk5.us.auth0.com/userinfo")
+                .toUriString();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+        headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+        HttpHeaders body = new HttpHeaders();
+        body.set("access_token", auth_token);
+        HttpEntity<?> entity = new HttpEntity<>(body, headers);
+
+        RestOperations restOperations = new RestTemplate();
+        ResponseEntity<String> response;
+        try {
+            response  = restOperations.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    String.class
+            );
+        }
+        catch (HttpClientErrorException e)
+        {
+            System.out.println(e);
+            throw new EBadRequestError(e.toString(), new ArrayList<>());
+        }
+        catch (HttpServerErrorException e)
+        {
+            System.out.println(e);
+            throw new EBadRequestError(e.toString(), new ArrayList<>());
+        }
+        catch (RestClientException e)
+        {
+            System.out.println(e);
+            throw new EBadRequestError(e.toString(), new ArrayList<>());
+        }
+        if (response.getStatusCode() == HttpStatus.UNAUTHORIZED)
+        {
+            throw new EUnauthorized(response.getBody());
+        }
+
+        JSONObject obj = new JSONObject(response.getBody());
+        return obj.getString("name");
+    }
+
+    boolean IsValidToken(String access_token)
+    {
+        if (access_token == null)
+        {
+            return false;
+        }
+        try {
+            DecodedJWT jwt = JWT.decode(access_token);
+            JwkProvider provider = new UrlJwkProvider("https://dev-dpvduigq7zb3kgk5.us.auth0.com");
+            Jwk jwk = provider.get(jwt.getKeyId());
+            Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
+            algorithm.verify(jwt);
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+        return true;
     }
 }

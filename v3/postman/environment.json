@@ -9,27 +9,27 @@
     },
     {
       "key": "identityProviderUrl",
-      "value": "",
+      "value": "https://dev-dpvduigq7zb3kgk5.us.auth0.com/oauth/token",
       "enabled": true
     },
     {
       "key": "username",
-      "value": "",
+      "value": "vten2000@gmail.com",
       "enabled": true
     },
     {
       "key": "password",
-      "value": "",
+      "value": "3M3zd8rh6g7F2DX",
       "enabled": true
     },
     {
       "key": "clientId",
-      "value": "",
+      "value": "My7OQ1sarPkjI8KUY08spHKtjXu4721a",
       "enabled": true
     },
     {
       "key": "clientSecret",
-      "value": "",
+      "value": "XzW0Td5fMJyVXR-cjlLy6aiPIfmap8cLXXsJ7mVQoHmHhRK787MFjd1zapGSJxpq",
       "enabled": true
     }
   ],
