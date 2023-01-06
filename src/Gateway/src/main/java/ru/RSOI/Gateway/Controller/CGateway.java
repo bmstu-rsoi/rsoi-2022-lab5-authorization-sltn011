@@ -820,6 +820,10 @@ public class CGateway {
             Jwk jwk = provider.get(jwt.getKeyId());
             Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
             algorithm.verify(jwt);
+
+            if (jwt.getExpiresAt().before(Calendar.getInstance().getTime())) {
+                return false;
+            }
         }
         catch (Exception e)
         {
