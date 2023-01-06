@@ -42,7 +42,7 @@ public class CGateway {
     }
 
     @GetMapping("/cars")
-    public MCarsPage getAvailableCars(@RequestHeader(value = "authorization", required = false) String access_token,
+    public MCarsPage getAvailableCars(@RequestHeader(value = "Authorization", required = false) String access_token,
                                       @RequestParam int page, @RequestParam int size,
                                       @RequestParam(defaultValue = "false") boolean showAll)
     {
@@ -115,7 +115,7 @@ public class CGateway {
     }
 
     @GetMapping("/rental")
-    public List<MRentInfo> getAllUserRents(@RequestHeader(value = "authorization", required = false) String access_token)
+    public List<MRentInfo> getAllUserRents(@RequestHeader(value = "Authorization", required = false) String access_token)
     {
         System.out.println("Get all user rents");
         if (!IsValidToken(access_token))
@@ -127,7 +127,7 @@ public class CGateway {
     }
 
     @PostMapping("/rental")
-    public MRentSuccess tryRenting(@RequestHeader(value = "authorization", required = false) String access_token,
+    public MRentSuccess tryRenting(@RequestHeader(value = "Authorization", required = false) String access_token,
                                    @RequestBody Map<String, String> values)
     {
         System.out.println("Try renting");
@@ -160,7 +160,7 @@ public class CGateway {
     }
 
     @GetMapping("/rental/{rentalUid}")
-    public MRentInfo getUserRent(@RequestHeader(value = "authorization", required = false) String access_token,
+    public MRentInfo getUserRent(@RequestHeader(value = "Authorization", required = false) String access_token,
                                  @PathVariable String rentalUid)
     {
         System.out.println("Get user rent");
@@ -175,7 +175,7 @@ public class CGateway {
     @DeleteMapping("/rental/{rentalUid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
-    public void cancelUserRent(@RequestHeader(value = "authorization", required = false) String access_token,
+    public void cancelUserRent(@RequestHeader(value = "Authorization", required = false) String access_token,
                                @PathVariable String rentalUid)
     {
         System.out.println("Delete rent");
@@ -196,7 +196,7 @@ public class CGateway {
 
     @PostMapping("/rental/{rentalUid}/finish")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void finishUserRent(@RequestHeader(value = "authorization", required = false) String access_token,
+    public void finishUserRent(@RequestHeader(value = "Authorization", required = false) String access_token,
                                @PathVariable String rentalUid)
     {
         System.out.println("Finish rent");
