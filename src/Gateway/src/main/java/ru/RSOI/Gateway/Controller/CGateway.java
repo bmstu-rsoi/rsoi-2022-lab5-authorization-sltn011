@@ -818,7 +818,7 @@ public class CGateway {
         try {
             String token = access_token.substring(7);
             System.out.println("Token in check: " + token);
-            DecodedJWT jwt = JWT.decode(access_token);
+            DecodedJWT jwt = JWT.decode(token);
             JwkProvider provider = new UrlJwkProvider("https://dev-dpvduigq7zb3kgk5.us.auth0.com");
             Jwk jwk = provider.get(jwt.getKeyId());
             Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
