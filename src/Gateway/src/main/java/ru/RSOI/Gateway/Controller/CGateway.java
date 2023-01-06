@@ -46,6 +46,7 @@ public class CGateway {
                                       @RequestParam int page, @RequestParam int size,
                                       @RequestParam(defaultValue = "false") boolean showAll)
     {
+        System.out.println("Get all cars");
         if (!IsValidToken(access_token))
         {
             throw new EUnauthorized("Not authorized!");
@@ -116,6 +117,7 @@ public class CGateway {
     @GetMapping("/rental")
     public List<MRentInfo> getAllUserRents(@RequestHeader(value = "authorization", required = false) String access_token)
     {
+        System.out.println("Get all user rents");
         if (!IsValidToken(access_token))
         {
             throw new EUnauthorized("Not authorized!");
@@ -128,6 +130,7 @@ public class CGateway {
     public MRentSuccess tryRenting(@RequestHeader(value = "authorization", required = false) String access_token,
                                    @RequestBody Map<String, String> values)
     {
+        System.out.println("Try renting");
         if (!IsValidToken(access_token))
         {
             throw new EUnauthorized("Not authorized!");
@@ -160,6 +163,7 @@ public class CGateway {
     public MRentInfo getUserRent(@RequestHeader(value = "authorization", required = false) String access_token,
                                  @PathVariable String rentalUid)
     {
+        System.out.println("Get user rent");
         if (!IsValidToken(access_token))
         {
             throw new EUnauthorized("Not authorized!");
@@ -174,6 +178,7 @@ public class CGateway {
     public void cancelUserRent(@RequestHeader(value = "authorization", required = false) String access_token,
                                @PathVariable String rentalUid)
     {
+        System.out.println("Delete rent");
         if (!IsValidToken(access_token))
         {
             throw new EUnauthorized("Not authorized!");
@@ -194,6 +199,7 @@ public class CGateway {
     public void finishUserRent(@RequestHeader(value = "authorization", required = false) String access_token,
                                @PathVariable String rentalUid)
     {
+        System.out.println("Finish rent");
         if (!IsValidToken(access_token))
         {
             throw new EUnauthorized("Not authorized!");
