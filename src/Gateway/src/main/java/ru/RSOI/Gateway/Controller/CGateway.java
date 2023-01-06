@@ -810,6 +810,7 @@ public class CGateway {
 
     boolean IsValidToken(String access_token)
     {
+        System.out.println("Token in check: " + access_token);
         if (access_token == null)
         {
             return false;
