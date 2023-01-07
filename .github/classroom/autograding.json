@@ -3,7 +3,7 @@
     {
       "name": "Run Postman",
       "setup": "",
-      "run": "newman run --delay-request 1000 -e v3/postman/environment.json v3/postman/collection.json",
+      "run": "newman run --delay-request 2000 -e v3/postman/environment.json v3/postman/collection.json",
       "input": "",
       "output": "",
       "comparison": "included",

@@ -58,7 +58,7 @@ jobs:
         with:
           collection: v3/postman/collection.json
           environment: v3/postman/environment.json
-          delayRequest: 1000
+          delayRequest: 2000
           reporters: '[ "cli" ]'
 
       - uses: education/autograding@v1
